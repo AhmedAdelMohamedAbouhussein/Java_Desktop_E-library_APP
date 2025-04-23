@@ -156,10 +156,10 @@ public class ViewPublishedBooks extends JPanel {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             int count = 0;
             String line;
-            while ((line = reader.readLine()) != null && count < 30) {
+            while ((line = reader.readLine()) != null && count < 100) {
                 preview.append(line).append(" ");
                 count += line.length();
-                if (count >= 30) break;
+                if (count >= 100) break;
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -2,6 +2,13 @@ package GUI;
 
 import javax.swing.*;
 import Classes.Admin;
+import GUI.AdminPanel.ManageBooks;
+import GUI.AdminPanel.UpdateProfile;
+import GUI.AdminPanel.ViewAdmins;
+import GUI.AdminPanel.ViewCustomers;
+import GUI.AdminPanel.ViewPublishers;
+import GUI.AdminPanel.ViewUsers;
+import GUI.CustomerPanels.ViewBookReviews;
 import GUI.stylesAndComponents.AsidePanel;
 import GUI.stylesAndComponents.ClickableLabel;
 import GUI.stylesAndComponents.StyledPanel;
@@ -22,6 +29,11 @@ public class AdminPage extends JPanel {
         // Set the background color of this panel to a darker shade
         setBackground(new Color(30, 30, 30));
         setLayout(new BorderLayout());
+
+        // Main content with gradient background
+        cardLayout = new CardLayout();
+        StyledPanel mainPanel = new StyledPanel();
+        mainPanel.setLayout(cardLayout);
 
         // Sidebar (aside)
         AsidePanel asidePanel = new AsidePanel();
@@ -69,31 +81,62 @@ public class AdminPage extends JPanel {
                 {
                     case "View Users":
                         // Handle action for "View Users"
+                        ViewUsers vu = new ViewUsers(mainFrame, admin);
+                        mainPanel.add(vu, "viewusers");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "viewusers");
+
                         System.out.println("View Users clicked");
                         break;
 
                     case "View Customers":
                         // Handle action for "View Customers"
+                        ViewCustomers vr = new ViewCustomers(mainFrame, admin);
+                        mainPanel.add(vr, "viewcustomers");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "viewcustomers");
                         System.out.println("View Customers clicked");
                         break;
 
                     case "View Publishers":
                         // Handle action for "View Publishers"
+                        ViewPublishers vp = new ViewPublishers(mainFrame, admin);
+                        mainPanel.add(vp, "viewpublishers");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "viewpublishers");
                         System.out.println("View Publishers clicked");
                         break;
 
                     case "View Admins":
                         // Handle action for "View Admins"
+                        ViewAdmins va = new ViewAdmins(mainFrame, admin);
+                        mainPanel.add(va, "viewadmins");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "viewadmins");
                         System.out.println("View Admins clicked");
                         break;
 
                     case "Manage Books":
                         // Handle action for "Manage Books"
+                        ManageBooks mb = new ManageBooks(mainFrame, admin);
+                        mainPanel.add(mb, "managebooks");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "managebooks");
                         System.out.println("Manage Books clicked");
                         break;
 
                     case "Edit Profile":
                         // Handle action for "Edit Profile"
+                        UpdateProfile up = new UpdateProfile(mainFrame, admin);
+                        mainPanel.add(up, "updateprofile");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "updateprofile");
                         System.out.println("Edit Profile clicked");
                         break;
                         
@@ -107,11 +150,6 @@ public class AdminPage extends JPanel {
         for (ClickableLabel label : labels) {
             label.addActionListener(labelClickListener);
         }
-
-        // Main content with gradient background
-        cardLayout = new CardLayout();
-        StyledPanel mainPanel = new StyledPanel();
-        mainPanel.setLayout(cardLayout);
 
         // Split Pane (Aside on the left, Main on the right)
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, asidePanel, mainPanel);

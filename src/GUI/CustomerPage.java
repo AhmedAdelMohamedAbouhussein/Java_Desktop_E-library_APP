@@ -2,7 +2,14 @@ package GUI;
 
 import javax.swing.*;
 import Classes.Customers;
+import GUI.AdminPanel.UpdateProfile;
+import GUI.CustomerPanels.AddReview;
 import GUI.CustomerPanels.BrowseBooks;
+import GUI.CustomerPanels.ReturnBorrowedBooks;
+import GUI.CustomerPanels.ViewBookReviews;
+import GUI.CustomerPanels.ViewBorrowedBooks;
+import GUI.CustomerPanels.ViewOrders;
+import GUI.CustomerPanels.ViewOwnedBooks;
 import GUI.PublishersPanels.PublishBook;
 import GUI.stylesAndComponents.AsidePanel;
 import GUI.stylesAndComponents.ClickableLabel;
@@ -90,36 +97,70 @@ public class CustomerPage extends JPanel {
                         break;
 
                     case "View Order":
-                        // Handle action for "View Orders"
+                        ViewOrders cp = new ViewOrders(mainFrame, customer);
+                        mainPanel.add(cp, "checkoutpanel");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "checkoutpanel");
                         System.out.println("View Order clicked");
                         break;
 
                     case "View Reviews":
                         // Handle action for "View Reviews"
                         System.out.println("View Reviews clicked");
+                        ViewBookReviews vbr = new ViewBookReviews(mainFrame, customer);
+                        mainPanel.add(vbr, "viewbookreviews");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "viewbookreviews");
                         break;
 
                     case "Add Review":
+                        AddReview ad = new AddReview(mainFrame, customer);
+                        mainPanel.add(ad, "addreview");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "addreview");
                         System.out.println("Add Reviews clicked");
                         break;
                         
                     case "View Owned Books":
                         // Handle action for "View Owned Books"
+                        ViewOwnedBooks vob = new ViewOwnedBooks(mainFrame, customer);
+                        mainPanel.add(vob, "viewownedbooks");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "viewownedbooks");
                         System.out.println("View Owned Books clicked");
                         break;
                         
                     case "View Borrowed Books":
                         // Handle action for "View Borrowed Books"
+                        ViewBorrowedBooks vbb = new ViewBorrowedBooks(mainFrame, customer);
+                        mainPanel.add(vbb, "viewborrowedbooks");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "viewborrowedbooks");
                         System.out.println("View Borrowed Books clicked");
                         break;
 
                     case "Return Borrowed Books":
                         // Handle action for "Return Borrowed Books"
+                        ReturnBorrowedBooks rbb = new ReturnBorrowedBooks(mainFrame, customer);
+                        mainPanel.add(rbb, "returnborrowedbooks");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "returnborrowedbooks");
                         System.out.println("Return Borrowed Books clicked");
                         break;
 
                     case "Update Profile":
                         // Handle action for "Update Profile"
+                        UpdateProfile up = new UpdateProfile(mainFrame, customer);
+                        mainPanel.add(up, "updateprofile");
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        cardLayout.show(mainPanel, "updateprofile");
                         System.out.println("Update Profile clicked");
                         break;
 

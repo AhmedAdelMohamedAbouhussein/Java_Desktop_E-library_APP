@@ -21,6 +21,9 @@ public class BrowseBooks extends JPanel {
     MainFrame mainFrame;
     Customers customer;
     JTextField searchField;
+    private ArrayList<Books> booksToBorrow = new ArrayList<>();
+    private ArrayList<Books> booksToBuy = new ArrayList<>();
+
 
     public BrowseBooks(MainFrame mainFrame, Customers customer) {
         this.mainFrame = mainFrame;
@@ -111,89 +114,115 @@ public class BrowseBooks extends JPanel {
         gridPanel.add(Box.createGlue(), gbc);
     }
 
-    private JScrollPane createBookPanel(Books book) 
-{
-    StyledPanel bookPanel = new StyledPanel();
-    bookPanel.setLayout(new BoxLayout(bookPanel, BoxLayout.Y_AXIS));
-    bookPanel.setBackground(new Color(255, 255, 255, 200));
-    bookPanel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.DARK_GRAY, 1),
-            BorderFactory.createEmptyBorder(10, 10, 10, 10)
-    ));
-
-    for(Publisher p: Publisher.getPublisherList())
-    {
-        if(p.getId() == book.getPublisherID())
-        {
-            JLabel title = new JLabel(book.getBookName() + " by " + p.getName());
-            Labels.styleELibraryLabel(title, "small");
-            bookPanel.add(title);
-            break;
+    private JScrollPane createBookPanel(Books book) {
+        StyledPanel bookPanel = new StyledPanel();
+        bookPanel.setLayout(new BoxLayout(bookPanel, BoxLayout.Y_AXIS));
+        bookPanel.setBackground(new Color(255, 255, 255, 200));
+        bookPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.DARK_GRAY, 1),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+    
+        // --- Title ---
+        for (Publisher p : Publisher.getPublisherList()) {
+            if (p.getId() == book.getPublisherID()) {
+                JLabel title = new JLabel(book.getBookName() + " by " + p.getName());
+                Labels.styleELibraryLabel(title, "small");
+                title.setAlignmentX(Component.LEFT_ALIGNMENT);
+                bookPanel.add(title);
+                break;
+            }
         }
-    }
-
-    if (book.getCoverImageFile() != null && book.getCoverImageFile().exists()) {
-        ImageIcon imageIcon = new ImageIcon(book.getCoverImageFile().getPath());
-        Image scaledImage = imageIcon.getImage().getScaledInstance(120, 160, Image.SCALE_SMOOTH);
-        JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
-        imageLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        bookPanel.add(Box.createVerticalStrut(10));
-        bookPanel.add(imageLabel);
-    }
-
-    JLabel price = new JLabel("Price: $" + book.getPrice());
-    JLabel category = new JLabel("Category: " + book.getCategory());
-    Labels.styleELibraryLabel(price, "small");
-    Labels.styleELibraryLabel(category, "small");
-    bookPanel.add(Box.createVerticalStrut(5));
-    bookPanel.add(price);
-    bookPanel.add(category);
-
-    if (book.getBookTextFile() != null && book.getBookTextFile().exists()) {
-        String preview = getBookTextPreview(book.getBookTextFile());
-        JTextArea previewText = new JTextArea("Preview: " + preview + "...");
-        TextFields.styleELibraryTextArea(previewText);
-        JScrollPane previewScroll = new JScrollPane(previewText);
-        previewScroll.setPreferredSize(new Dimension(100, 100));
-        previewScroll.setBorder(null);
-        previewScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    
+        // --- Cover Image ---
+        if (book.getCoverImageFile() != null && book.getCoverImageFile().exists()) {
+            ImageIcon imageIcon = new ImageIcon(book.getCoverImageFile().getPath());
+            Image scaledImage = imageIcon.getImage().getScaledInstance(120, 160, Image.SCALE_SMOOTH);
+            JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+            imageLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            bookPanel.add(Box.createVerticalStrut(10));
+            bookPanel.add(imageLabel);
+        }
+    
+        // --- Price & Category ---
+        JLabel price = new JLabel("Price: $" + book.getPrice());
+        JLabel category = new JLabel("Category: " + book.getCategory());
+        Labels.styleELibraryLabel(price, "small");
+        Labels.styleELibraryLabel(category, "small");
+        price.setAlignmentX(Component.LEFT_ALIGNMENT);
+        category.setAlignmentX(Component.LEFT_ALIGNMENT);
         bookPanel.add(Box.createVerticalStrut(5));
-        bookPanel.add(previewScroll);
-    }
-
-    // --- Add to Cart Button ---
-    JButton addToCartBtn = new JButton("Add to Cart");
-    Buttons.styleELibraryButton(addToCartBtn);
-    addToCartBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
-
-
-    addToCartBtn.addActionListener(e -> 
-    {
-        System.out.println("Book added to cart: " + book.getBookName());
-        // TODO: Replace with actual cart logic
-    }
-    );
-
-    bookPanel.add(Box.createVerticalStrut(10));
-    bookPanel.add(addToCartBtn);
-
-    JScrollPane bookScrollPane = new JScrollPane(bookPanel);
-    bookScrollPane.setPreferredSize(new Dimension(450, 450));
-    bookScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-    bookScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    bookScrollPane.setBorder(null);
-    bookScrollPane.getVerticalScrollBar().setUnitIncrement(12);
-    bookScrollPane.setBackground(new Color(255, 255, 255, 200));
-    bookScrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
-        @Override
-        protected void configureScrollBarColors() 
-        {
-            this.thumbColor = new Color(120, 120, 120, 160);
+        bookPanel.add(price);
+        bookPanel.add(category);
+    
+        // --- Preview TextArea ---
+        if (book.getBookTextFile() != null && book.getBookTextFile().exists()) {
+            String preview = getBookTextPreview(book.getBookTextFile());
+            JTextArea previewText = new JTextArea("Preview: " + preview + "...");
+            TextFields.styleELibraryTextArea(previewText);
+            previewText.setLineWrap(true);
+            previewText.setWrapStyleWord(true);
+            JScrollPane previewScroll = new JScrollPane(previewText);
+            previewScroll.setPreferredSize(new Dimension(300, 80));
+            previewScroll.setBorder(null);
+            previewScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
+            previewScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            bookPanel.add(Box.createVerticalStrut(5));
+            bookPanel.add(previewScroll);
         }
-    });
-
-    return bookScrollPane;
-}
+    
+        // --- Buttons: Borrow & Buy ---
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.setOpaque(false);
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    
+        JButton borrowBtn = new JButton("Borrow Book");
+        JButton buyBtn = new JButton("Buy Book");
+        Buttons.styleELibraryButton(borrowBtn);
+        Buttons.styleELibraryButton(buyBtn);
+        borrowBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        buyBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+    
+        borrowBtn.addActionListener(e -> {
+            if (!booksToBorrow.contains(book)) {
+                booksToBorrow.add(book);
+                System.out.println("Added to borrow list: " + book.getBookName());
+            }
+        });
+    
+        buyBtn.addActionListener(e -> {
+            if (!booksToBuy.contains(book)) {
+                booksToBuy.add(book);
+                System.out.println("Added to buy list: " + book.getBookName());
+            }
+        });
+    
+        buttonPanel.add(borrowBtn);
+        buttonPanel.add(Box.createHorizontalStrut(10));
+        buttonPanel.add(buyBtn);
+    
+        bookPanel.add(Box.createVerticalStrut(10));
+        bookPanel.add(buttonPanel);
+    
+        // --- Wrapping into ScrollPane ---
+        JScrollPane bookScrollPane = new JScrollPane(bookPanel);
+        bookScrollPane.setPreferredSize(new Dimension(450, 450));
+        bookScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        bookScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        bookScrollPane.setBorder(null);
+        bookScrollPane.setBackground(new Color(255, 255, 255, 200));
+        bookScrollPane.getVerticalScrollBar().setUnitIncrement(12);
+        bookScrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new Color(120, 120, 120, 160);
+            }
+        });
+    
+        return bookScrollPane;
+    }
+    
 
 
     private String getBookTextPreview(File file) {
@@ -201,14 +230,31 @@ public class BrowseBooks extends JPanel {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             int count = 0;
             String line;
-            while ((line = reader.readLine()) != null && count < 30) {
+            while ((line = reader.readLine()) != null && count < 100) {
                 preview.append(line).append(" ");
                 count += line.length();
-                if (count >= 30) break;
+                if (count >= 100) break;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         return preview.toString().trim();
     }
+
+    public ArrayList<Books> getbooksToBuy() {
+        return booksToBuy;
+    }
+    
+    public void setbooksToBuy(ArrayList<Books> buyList) {
+        this.booksToBuy = buyList;
+    }
+    
+    public ArrayList<Books> getbooksToBorrow() {
+        return booksToBorrow;
+    }
+    
+    public void setbooksToBorrow(ArrayList<Books> booksToBorrow) {
+        this.booksToBorrow = booksToBorrow;
+    }
+    
 }
