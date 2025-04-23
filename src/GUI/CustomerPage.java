@@ -2,10 +2,10 @@ package GUI;
 
 import javax.swing.*;
 import Classes.Customers;
-import GUI.AdminPanel.UpdateProfile;
 import GUI.CustomerPanels.AddReview;
 import GUI.CustomerPanels.BrowseBooks;
 import GUI.CustomerPanels.ReturnBorrowedBooks;
+import GUI.CustomerPanels.CUpdateProfile;
 import GUI.CustomerPanels.ViewBookReviews;
 import GUI.CustomerPanels.ViewBorrowedBooks;
 import GUI.CustomerPanels.ViewOrders;
@@ -76,7 +76,8 @@ public class CustomerPage extends JPanel {
         }
 
         // ActionListener for ClickableLabels
-        ActionListener labelClickListener = new ActionListener() {
+        ActionListener labelClickListener = new ActionListener() 
+        {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ClickableLabel clickedLabel = (ClickableLabel) e.getSource();
@@ -155,8 +156,8 @@ public class CustomerPage extends JPanel {
                         break;
 
                     case "Update Profile":
-                        // Handle action for "Update Profile"
-                        UpdateProfile up = new UpdateProfile(mainFrame, customer);
+                        //Handle action for "Update Profile"
+                        CUpdateProfile up = new CUpdateProfile(mainFrame, customer);
                         mainPanel.add(up, "updateprofile");
                         mainPanel.revalidate();
                         mainPanel.repaint();

@@ -1,4 +1,4 @@
-package GUI.PublishersPanels;
+package GUI.CustomerPanels;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -6,25 +6,23 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-import Classes.Publisher;
+import Classes.Customers;
 import Database.DAO.UsersDAO;
 import GUI.MainFrame;
 import GUI.SignupPage;
 import GUI.stylesAndComponents.*;
 
-public class ChangeEmailandPassword extends JPanel implements ActionListener
-{
+public class CUpdateProfile extends JPanel implements ActionListener {
     MainFrame mainFrame;
-    Publisher publisher;
+    Customers customer;
 
     JTextField emailField;
     JPasswordField passwordField;
     JButton updateButton;
 
-    public ChangeEmailandPassword(MainFrame mainFrame, Publisher publisher)
-    {
+    public CUpdateProfile(MainFrame mainFrame, Customers customer) {
         this.mainFrame = mainFrame;
-        this.publisher = publisher;
+        this.customer = customer;
 
         // Panel styling and layout
         StyledPanel mainpanel = new StyledPanel();
@@ -48,7 +46,7 @@ public class ChangeEmailandPassword extends JPanel implements ActionListener
         TextFields.styleELibraryTextField(passwordField);
 
         // Update button
-        updateButton = new JButton("Update Credentials");
+        updateButton = new JButton("Update Profile");
         Buttons.styleELibraryButton(updateButton);
         updateButton.setPreferredSize(new Dimension(200, 50));
 
@@ -87,25 +85,25 @@ public class ChangeEmailandPassword extends JPanel implements ActionListener
     
         if (e.getSource() == updateButton) 
         {
-            if(UsersDAO.getUserByEmail(isEmailUsed))
+            if (UsersDAO.getUserByEmail(isEmailUsed)) 
             {
                 CustomDialogUtil.showStyledMessage(null, "Email already exists in Database \n Account Exists", "Email exists");
-            }
-            else if(!SignupPage.isValidEmail(isEmailUsed)) 
+            } 
+            else if (!SignupPage.isValidEmail(isEmailUsed)) 
             {
-                    CustomDialogUtil.showStyledMessage(null, "Make sure Email is written correctly", "Invalid email");
+                CustomDialogUtil.showStyledMessage(null, "Make sure Email is written correctly", "Invalid email");
             }
-            else if(!SignupPage.isValidPassword(passwordField))
+            else if (!SignupPage.isValidPassword(passwordField))
             {
                 CustomDialogUtil.showStyledMessage(null, "Password is either too short or contains spaces", "Invalid Password");
-            }
-            else
+            } 
+            else 
             {
-                CustomDialogUtil.showStyledMessage(null, "Account Updated Sauccessfully", "Approved");
+                CustomDialogUtil.showStyledMessage(null, "Profile Updated Successfully", "Approved");
                 
-                UsersDAO.updateUser(publisher.getId(), isEmailUsed, new String(passwordField.getPassword()));
-                publisher.setEmail(isEmailUsed);
-                publisher.setPassword( new String(passwordField.getPassword()));
+                UsersDAO.updateUser(customer.getId(), isEmailUsed, new String(passwordField.getPassword()));
+                customer.setEmail(isEmailUsed);
+                customer.setPassword(new String(passwordField.getPassword()));
             }
         }
     }

@@ -10,6 +10,9 @@ public class Customers extends Users
     private ArrayList<Books> ownedBookList;
     private ArrayList<Books> borrowedBookList;
 
+    private ArrayList<Books> potentialOwnedBooks = new ArrayList<>();
+    private ArrayList<Books> potentialBorrowedBooks = new ArrayList<>();
+
     public Customers(String name, String email,String password, int id)
     {
         super(name,"customer",email,password,id);
@@ -138,5 +141,25 @@ public class Customers extends Users
             }
         }
         return null;
+    }
+
+    //seters and getters
+    public ArrayList<Books> getpotentialOwnedBooks()
+    {
+        return potentialOwnedBooks;
+    }
+    public void setpotentialOwnedBooks(ArrayList<Books> potentialOwnedBooks)
+    {
+        this.potentialOwnedBooks = potentialOwnedBooks;
+    }
+    
+
+    public ArrayList<Books> getpotentialBorroedbooks()
+    {
+        return potentialBorrowedBooks;
+    }
+    public void setpotentialBorroedbooks(ArrayList<Books> potentialBorrowedBooks)
+    {
+        this.potentialBorrowedBooks = potentialBorrowedBooks;
     }
 }

@@ -180,5 +180,7 @@ public class LoginPage extends JPanel  implements ActionListener
                 
             }
         }
+        email.setText("");
+        password.setText("");
     }
 }

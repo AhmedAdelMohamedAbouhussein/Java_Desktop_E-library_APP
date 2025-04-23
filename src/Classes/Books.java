@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import Database.DAO.BookDAO;
+import Database.DAO.ReviewDAO;
 
 public class Books 
 {
@@ -146,6 +147,8 @@ public class Books
         }
 
         Reviews.getReviewsofBooks().get(bookID).add(newReview);
+
+        ReviewDAO.addReview(newReview);
     }
 
     public static Books findBookByID(int id) {
@@ -153,9 +156,11 @@ public class Books
     }
 
     public static Books findBookByName(String bookName) {
-        for (Publisher publisher : Publisher.getPublisherList()) {
+        for (Publisher publisher : Publisher.getPublisherList()) 
+        {
             for (Books book : publisher.getBookList()) {
-                if (book.getBookName().equalsIgnoreCase(bookName)) {
+                if (book.getBookName().equalsIgnoreCase(bookName)) 
+                {
                     return book;
                 }
             }

@@ -23,33 +23,30 @@ public class Load_Everything
         BorrowedBooksDAO.loadAllBorrowedBooks(); //✅
         OwnedBooksDAO.loadAllOwnedBooks(); //✅
 
-        for(Customers c: Customers.getCustomersList()) //✅
-        {
-            if(BorrowedBooks.getcustomerBorrowedBooks().containsKey(c.getId()))
-            {
-                for(int i = 0; i < BorrowedBooks.getcustomerBorrowedBooks().get(c.getId()).size(); i++)
-                {
-                    if(Books.getAllBooksList().containsKey(BorrowedBooks.getcustomerBorrowedBooks().get(c.getId()).get(i)))
-                    {
-                        c.getBorrowedBookList().add(Books.getAllBooksList().get(i));
+        // Load Borrowed Books for each customer
+        for (Customers c : Customers.getCustomersList()) {
+            if (BorrowedBooks.getcustomerBorrowedBooks().containsKey(c.getId())) {
+                for (int i = 0; i < BorrowedBooks.getcustomerBorrowedBooks().get(c.getId()).size(); i++) {
+                    Integer bookId = BorrowedBooks.getcustomerBorrowedBooks().get(c.getId()).get(i);
+                    if (Books.getAllBooksList().containsKey(bookId)) {
+                        c.getBorrowedBookList().add(Books.getAllBooksList().get(bookId)); // Using the correct ID to fetch the book
                     }
                 }
             }
         }
 
-        for(Customers c: Customers.getCustomersList()) //✅
-        {
-            if(OwnedBooks.getcustomerOwnedBooks().containsKey(c.getId()))
-            {
-                for(int i = 0; i < OwnedBooks.getcustomerOwnedBooks().get(c.getId()).size(); i++)
-                {
-                    if(Books.getAllBooksList().containsKey(OwnedBooks.getcustomerOwnedBooks().get(c.getId()).get(i)))
-                    {
-                        c.getBorrowedBookList().add(Books.getAllBooksList().get(i));
+        // Load Owned Books for each customer
+        for (Customers c : Customers.getCustomersList()) {
+            if (OwnedBooks.getcustomerOwnedBooks().containsKey(c.getId())) {
+                for (int i = 0; i < OwnedBooks.getcustomerOwnedBooks().get(c.getId()).size(); i++) {
+                    Integer bookId = OwnedBooks.getcustomerOwnedBooks().get(c.getId()).get(i);
+                    if (Books.getAllBooksList().containsKey(bookId)) {
+                        c.getOwnedBookList().add(Books.getAllBooksList().get(bookId)); // Correctly adding to the owned books list
                     }
                 }
             }
         }
+
 
         Database.DAO.ReviewDAO.loadAllReviews(); //✅
 

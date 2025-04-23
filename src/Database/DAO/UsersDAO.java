@@ -13,7 +13,7 @@ public class UsersDAO
 {
 
     // UPDATE publisher's user data (email, password)
-    public static void updatePublisher(int id, String email, String password) 
+    public static void updateUser(int id, String email, String password) 
     {
         try (Connection conn = DBConnection.getConnection()) 
         {

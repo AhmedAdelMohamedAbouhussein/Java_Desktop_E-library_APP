@@ -81,62 +81,62 @@ public class AdminPage extends JPanel {
                 {
                     case "View Users":
                         // Handle action for "View Users"
-                        ViewUsers vu = new ViewUsers(mainFrame, admin);
-                        mainPanel.add(vu, "viewusers");
+                        //ViewUsers vu = new ViewUsers(mainFrame, admin);
+                        //mainPanel.add(vu, "viewusers");
                         mainPanel.revalidate();
                         mainPanel.repaint();
-                        cardLayout.show(mainPanel, "viewusers");
+                        //cardLayout.show(mainPanel, "viewusers");
 
                         System.out.println("View Users clicked");
                         break;
 
                     case "View Customers":
                         // Handle action for "View Customers"
-                        ViewCustomers vr = new ViewCustomers(mainFrame, admin);
-                        mainPanel.add(vr, "viewcustomers");
+                        //ViewCustomers vr = new ViewCustomers(mainFrame, admin);
+                        //mainPanel.add(vr, "viewcustomers");
                         mainPanel.revalidate();
                         mainPanel.repaint();
-                        cardLayout.show(mainPanel, "viewcustomers");
+                        //cardLayout.show(mainPanel, "viewcustomers");
                         System.out.println("View Customers clicked");
                         break;
 
                     case "View Publishers":
                         // Handle action for "View Publishers"
-                        ViewPublishers vp = new ViewPublishers(mainFrame, admin);
-                        mainPanel.add(vp, "viewpublishers");
+                        //ViewPublishers vp = new ViewPublishers(mainFrame, admin);
+                        //mainPanel.add(vp, "viewpublishers");
                         mainPanel.revalidate();
                         mainPanel.repaint();
-                        cardLayout.show(mainPanel, "viewpublishers");
+                        //cardLayout.show(mainPanel, "viewpublishers");
                         System.out.println("View Publishers clicked");
                         break;
 
                     case "View Admins":
                         // Handle action for "View Admins"
-                        ViewAdmins va = new ViewAdmins(mainFrame, admin);
-                        mainPanel.add(va, "viewadmins");
+                        //ViewAdmins va = new ViewAdmins(mainFrame, admin);
+                        //mainPanel.add(va, "viewadmins");
                         mainPanel.revalidate();
                         mainPanel.repaint();
-                        cardLayout.show(mainPanel, "viewadmins");
+                        //cardLayout.show(mainPanel, "viewadmins");
                         System.out.println("View Admins clicked");
                         break;
 
                     case "Manage Books":
                         // Handle action for "Manage Books"
-                        ManageBooks mb = new ManageBooks(mainFrame, admin);
-                        mainPanel.add(mb, "managebooks");
+                        //ManageBooks mb = new ManageBooks(mainFrame, admin);
+                        //mainPanel.add(mb, "managebooks");
                         mainPanel.revalidate();
                         mainPanel.repaint();
-                        cardLayout.show(mainPanel, "managebooks");
+                        //cardLayout.show(mainPanel, "managebooks");
                         System.out.println("Manage Books clicked");
                         break;
 
                     case "Edit Profile":
                         // Handle action for "Edit Profile"
-                        UpdateProfile up = new UpdateProfile(mainFrame, admin);
-                        mainPanel.add(up, "updateprofile");
+                        //UpdateProfile up = new UpdateProfile(mainFrame, admin);
+                        //mainPanel.add(up, "updateprofile");
                         mainPanel.revalidate();
                         mainPanel.repaint();
-                        cardLayout.show(mainPanel, "updateprofile");
+                        //cardLayout.show(mainPanel, "updateprofile");
                         System.out.println("Edit Profile clicked");
                         break;
                         

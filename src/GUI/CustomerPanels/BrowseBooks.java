@@ -15,15 +15,13 @@ import GUI.MainFrame;
 import GUI.stylesAndComponents.StyledPanel;
 import GUI.stylesAndComponents.TextFields;
 import GUI.stylesAndComponents.Buttons;
+import GUI.stylesAndComponents.CustomDialogUtil;
 import GUI.stylesAndComponents.Labels;
 
 public class BrowseBooks extends JPanel {
     MainFrame mainFrame;
     Customers customer;
     JTextField searchField;
-    private ArrayList<Books> booksToBorrow = new ArrayList<>();
-    private ArrayList<Books> booksToBuy = new ArrayList<>();
-
 
     public BrowseBooks(MainFrame mainFrame, Customers customer) {
         this.mainFrame = mainFrame;
@@ -185,18 +183,37 @@ public class BrowseBooks extends JPanel {
         buyBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
     
         borrowBtn.addActionListener(e -> {
-            if (!booksToBorrow.contains(book)) {
-                booksToBorrow.add(book);
+            if (customer.getBorrowedBookList().contains(book)) {
+                CustomDialogUtil.showStyledMessage(null, "You have already borrowed this book.", "Already Borrowed");
+            } else if (customer.getOwnedBookList().contains(book)) {
+                CustomDialogUtil.showStyledMessage(null, "You already own this book.", "Already Owned");
+            } else if (customer.getpotentialOwnedBooks().contains(book)) {
+                CustomDialogUtil.showStyledMessage(null, "This book is already in your purchase cart.", "Already in Purchase Cart");
+            } else if (customer.getpotentialBorroedbooks().contains(book)) {
+                CustomDialogUtil.showStyledMessage(null, "This book is already in your borrow cart.", "Already in Borrow Cart");
+            } else {
+                customer.getpotentialBorroedbooks().add(book);
                 System.out.println("Added to borrow list: " + book.getBookName());
+                CustomDialogUtil.showStyledMessage(null, "Book added to borrowed books.\nConfirm in the View Order panel.", "Book Added");
             }
         });
-    
+        
         buyBtn.addActionListener(e -> {
-            if (!booksToBuy.contains(book)) {
-                booksToBuy.add(book);
+            if (customer.getOwnedBookList().contains(book)) {
+                CustomDialogUtil.showStyledMessage(null, "You already own this book.", "Already Owned");
+            } else if (customer.getBorrowedBookList().contains(book)) {
+                CustomDialogUtil.showStyledMessage(null, "You already borrowed this book.", "Already Borrowed");
+            } else if (customer.getpotentialOwnedBooks().contains(book)) {
+                CustomDialogUtil.showStyledMessage(null, "This book is already in your purchase cart.", "Already in Purchase Cart");
+            } else if (customer.getpotentialBorroedbooks().contains(book)) {
+                CustomDialogUtil.showStyledMessage(null, "This book is already in your borrow cart.", "Already in Borrow Cart");
+            } else {
+                customer.getpotentialOwnedBooks().add(book);
                 System.out.println("Added to buy list: " + book.getBookName());
+                CustomDialogUtil.showStyledMessage(null, "Book added to owned books.\nConfirm in the View Order panel.", "Book Added");
             }
         });
+        
     
         buttonPanel.add(borrowBtn);
         buttonPanel.add(Box.createHorizontalStrut(10));
@@ -240,21 +257,4 @@ public class BrowseBooks extends JPanel {
         }
         return preview.toString().trim();
     }
-
-    public ArrayList<Books> getbooksToBuy() {
-        return booksToBuy;
-    }
-    
-    public void setbooksToBuy(ArrayList<Books> buyList) {
-        this.booksToBuy = buyList;
-    }
-    
-    public ArrayList<Books> getbooksToBorrow() {
-        return booksToBorrow;
-    }
-    
-    public void setbooksToBorrow(ArrayList<Books> booksToBorrow) {
-        this.booksToBorrow = booksToBorrow;
-    }
-    
 }
