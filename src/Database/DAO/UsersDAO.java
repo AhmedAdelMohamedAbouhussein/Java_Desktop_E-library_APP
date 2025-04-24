@@ -30,17 +30,27 @@ public class UsersDAO
         }
     }
 
-    // DELETE: Delete user by ID
-    public static void deleteUser(int id) {
-        try (Connection conn = DBConnection.getConnection()) {
-            String sql = "DELETE FROM Users WHERE id = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        } catch (Exception e) {
+    public static void deleteUser(int id) 
+    {
+        try (Connection conn = DBConnection.getConnection()) 
+        {
+            // First, delete reviews where the user is the reviewer
+            String deleteReviews = "DELETE FROM Reviews WHERE user_id = ?";
+            PreparedStatement stmt1 = conn.prepareStatement(deleteReviews);
+            stmt1.setInt(1, id);
+            stmt1.executeUpdate();
+            
+            // Then, delete the user from the Users table
+            String deleteUser = "DELETE FROM Users WHERE id = ?";
+            PreparedStatement stmt2 = conn.prepareStatement(deleteUser);
+            stmt2.setInt(1, id);
+            stmt2.executeUpdate();
+        } catch (Exception e) 
+        {
             e.printStackTrace();
         }
     }
+    
 
     //gor login
     public static String getUserByEmailAndPassword(String email, String passwordInput) 

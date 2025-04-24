@@ -36,15 +36,22 @@ public class ManageBooks extends JPanel
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
-        // Panel to hold all book cards
+        // Panel to hold all book cards using GridBagLayout
         StyledPanel bookPanel = new StyledPanel();
-        bookPanel.setLayout(new BoxLayout(bookPanel, BoxLayout.Y_AXIS));
+        bookPanel.setLayout(new GridBagLayout());
         bookPanel.setBackground(new Color(245, 245, 245));
+
+        // GridBag constraints
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        int row = 0;
 
         // Add book info cards
         for (Books book : booksList) {
             StyledPanel bookCard = new StyledPanel();
-            bookCard.setLayout(new GridLayout(6, 1));
+            bookCard.setLayout(new GridLayout(7, 1)); // Increased rows to 7 to accommodate the button
             bookCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
@@ -71,18 +78,30 @@ public class ManageBooks extends JPanel
             bookCard.add(publisherIDLabel);
             bookCard.add(fileLabel);
 
-            // Add Edit and Delete Buttons for managing books
-            JPanel actionPanel = new JPanel();
+            // Add Delete Button for managing books
             JButton deleteButton = new JButton("Delete");
+            Buttons.styleELibraryButton(deleteButton);
 
+            // Set GridBagConstraints for the button (span across 2 columns)
+            gbc.gridx = 0;
+            gbc.gridy = row;
+            gbc.gridwidth = 2; // Make the button span across 2 columns
+            bookCard.add(deleteButton, gbc);
+            
             // Delete button action (removes the book)
             deleteButton.addActionListener(e -> deleteBook(book));
 
-            actionPanel.add(deleteButton);
-            bookCard.add(actionPanel);
+            // Add bookCard to GridBagLayout
+            gbc.gridx = 0;
+            gbc.gridy = row + 1;
+            gbc.gridwidth = 1; // Reset gridwidth to default for subsequent components
+            bookPanel.add(bookCard, gbc);
+            row++;
 
-            bookPanel.add(bookCard);
-            bookPanel.add(Box.createVerticalStrut(10));
+            // Add a gap between rows
+            gbc.gridy = row;
+            bookPanel.add(Box.createVerticalStrut(10), gbc);
+            row++;
         }
 
         // ScrollPane for the list of books
@@ -103,7 +122,6 @@ public class ManageBooks extends JPanel
     // Delete book
     private void deleteBook(Books selectedBook) 
     {
-
         boolean success = BookDAO.deleteBook(selectedBook.getBookId());
         
         if (success) 
@@ -137,7 +155,6 @@ public class ManageBooks extends JPanel
             CustomDialogUtil.showStyledMessage(null, "Failed to remove book from database.", "Error");
         }
     }
-
 
     public void reloadPanel(JPanel newPanel) 
     {

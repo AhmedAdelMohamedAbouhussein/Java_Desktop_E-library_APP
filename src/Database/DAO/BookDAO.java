@@ -33,22 +33,32 @@ public class BookDAO
         return true;
     }
 
-    // DELETE: Delete a book by ID
-    public static boolean deleteBook(int bookId) 
-    {
-        try (Connection conn = DBConnection.getConnection()) 
-        {
+    public static boolean deleteBook(int bookId) {
+        try (Connection conn = DBConnection.getConnection()) {
+            // First, delete from BorrowedBooks
+            String deleteFromBorrowedBooks = "DELETE FROM BorrowedBooks WHERE book_id = ?";
+            PreparedStatement stmt1 = conn.prepareStatement(deleteFromBorrowedBooks);
+            stmt1.setInt(1, bookId);
+            stmt1.executeUpdate();
+    
+            // Then, delete from OwnedBooks
+            String deleteFromOwnedBooks = "DELETE FROM OwnedBooks WHERE book_id = ?";
+            PreparedStatement stmt2 = conn.prepareStatement(deleteFromOwnedBooks);
+            stmt2.setInt(1, bookId);
+            stmt2.executeUpdate();
+    
+            // Finally, delete from Books
             String sql = "DELETE FROM Books WHERE book_id = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, bookId);
-            stmt.executeUpdate();
-        } 
-        catch (Exception e) 
-        {
+            PreparedStatement stmt3 = conn.prepareStatement(sql);
+            stmt3.setInt(1, bookId);
+            stmt3.executeUpdate();
+        } catch (Exception e) {
             e.printStackTrace();
+            return false;  // Return false if an exception occurs
         }
         return true;
     }
+    
 
 
     // CREATE: Add a new book with cover image and text file
