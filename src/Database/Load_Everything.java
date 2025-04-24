@@ -52,7 +52,7 @@ public class Load_Everything
 
         for(Integer key: Books.getAllBooksList().keySet()) //✅
         {
-            if(Reviews.getReviewsofBooks().containsKey(key));
+            if(Reviews.getReviewsofBooks().containsKey(key))
             {
                 Books.getAllBooksList().get(key).setreviews(Reviews.getReviewsofBooks().get(key));
             }

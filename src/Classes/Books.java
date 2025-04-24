@@ -23,7 +23,7 @@ public class Books
     private static HashMap<Integer, Books> AllbooksList = new HashMap<>();
     private static HashMap<Integer, ArrayList<Books>> booksByPublisher = new HashMap<>();
 
-    // Constructor without files (for new books)
+    
     public Books(int publisherID, String bookName, double price , String category, File coverImageFile, File bookTextFile)
     {
         this.bookName = bookName;
@@ -131,28 +131,32 @@ public class Books
         return reviews;
     }
 
-    public static void addReview(int bookID, int raterID, String review) {
-        Books book = findBookByID(bookID);
-        if (book == null) {
-            return;
+    public static void addReview(Books book, int raterID, String review) { //TODO
+        if (book == null) return;
+    
+        // 💥 Defensive check in case the book was created improperly
+        if (book.reviews == null) {
+            book.reviews = new ArrayList<>();
         }
-
-        Reviews newReview = new Reviews(bookID, raterID, review);
-
+    
+        Reviews newReview = new Reviews(book.getBookId(), raterID, review);
         book.reviews.add(newReview);
+    
         Reviews.getAllReviewsList().add(newReview);
-
-        if (!Reviews.getReviewsofBooks().containsKey(bookID)) {
-            Reviews.getReviewsofBooks().put(bookID, new ArrayList<>());
-        }
-
-        Reviews.getReviewsofBooks().get(bookID).add(newReview);
-
+    
+        Reviews.getReviewsofBooks().computeIfAbsent(book.getBookId(), k -> new ArrayList<>()).add(newReview);
+    
         ReviewDAO.addReview(newReview);
     }
+    
 
-    public static Books findBookByID(int id) {
-        return AllbooksList.get(id);
+    public static Books findBookByID(int id) 
+    {
+        Books book = AllbooksList.get(id);
+        if (book == null) {
+            System.out.println("Book with ID " + id + " not found.");
+        }
+        return book;
     }
 
     public static Books findBookByName(String bookName) {
@@ -167,4 +171,11 @@ public class Books
         }
         return null;
     }
+
+    @Override
+    public String toString() 
+    {
+        return this.getBookName();  // Or just bookName if it's a public field or you access it directly
+    }
+
 }

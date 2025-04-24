@@ -26,6 +26,13 @@ public class Reviews
         this.bookID = bookID;
         this.raterID = raterID;
     }
+    public Reviews(int id,int bookID,int raterID, String review)
+    {
+        this.review = review;
+        this.id = id;
+        this.bookID = bookID;
+        this.raterID = raterID;
+    }
     
     //getters and setters
 

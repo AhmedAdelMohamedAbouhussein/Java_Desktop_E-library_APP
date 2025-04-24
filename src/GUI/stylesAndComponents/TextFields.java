@@ -1,6 +1,9 @@
 package GUI.stylesAndComponents;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -78,7 +81,7 @@ public class TextFields {
     }
     
     public static void styleELibraryTextArea(JTextArea textArea) {
-        // Set wrapping so text doesn't go out of screen
+        // Enable line wrap and word wrap
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
     
@@ -95,10 +98,10 @@ public class TextFields {
             BorderFactory.createEmptyBorder(10, 20, 10, 20)
         ));
     
-        // Optional: initial size (height for 4 lines)
+        // Set a stable preferred size (initial size)
         textArea.setPreferredSize(new Dimension(200, 100));
     
-        // Focus repaint
+        // Focus repaint (still useful for UI polish)
         textArea.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -110,6 +113,51 @@ public class TextFields {
                 textArea.repaint();
             }
         });
+    
+        // Auto-expand height based on content size
+        textArea.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                resizeTextArea(textArea);
+            }
+    
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                resizeTextArea(textArea);
+            }
+    
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                resizeTextArea(textArea);
+            }
+        });
     }
     
-}
+    // Method to resize the JTextArea based on the content size
+    private static void resizeTextArea(JTextArea textArea) 
+    {
+        textArea.setSize(textArea.getWidth(), Short.MAX_VALUE);
+        int newHeight = textArea.getPreferredSize().height;
+        textArea.setPreferredSize(new Dimension(textArea.getWidth(), newHeight));
+        textArea.revalidate();
+    }
+    public static JScrollPane createStyledScrollPane(JTextArea textArea) 
+    {
+        // Wrap the JTextArea inside a JScrollPane
+        JScrollPane scrollPane = new JScrollPane(textArea);
+    
+        // Ensure that the scroll pane resizes along with the JTextArea
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    
+        // Setting scroll bar preferences for smoother scrolling
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+    
+        // Optional: set the scroll pane's border to match the style
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(169, 169, 169), 2));
+    
+        // Return the scroll pane
+        return scrollPane;
+    }
+}    

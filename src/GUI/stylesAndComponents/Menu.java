@@ -12,8 +12,6 @@ public class Menu implements ActionListener
     JMenuItem about;
     JMenuItem signout;
     JMenuItem exit;
-    JButton undoButton;
-    JButton redoButton;
 
     public void createMenuBar(MainFrame frame) 
     {
@@ -21,19 +19,6 @@ public class Menu implements ActionListener
         JMenuBar menuBar = new JMenuBar();
         menuBar.setBackground(new Color(102, 51, 153));
         menuBar.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-
-        // Styled Undo / Redo Buttons with Emojis
-        undoButton = new JButton("Undo");
-        redoButton = new JButton("Redo");
-
-        Buttons.styleELibraryButton(undoButton);
-        Buttons.styleELibraryButton(redoButton);
-
-        undoButton.setPreferredSize(new Dimension(50, 40));
-        redoButton.setPreferredSize(new Dimension(50, 40));
-
-        menuBar.add(undoButton);
-        menuBar.add(redoButton);
 
         // Add spacer to push next items to the right
         menuBar.add(Box.createHorizontalGlue());
@@ -64,8 +49,6 @@ public class Menu implements ActionListener
         exit.addActionListener(this);
         signout.addActionListener(this);
         about.addActionListener(this);
-        undoButton.addActionListener(this);
-        redoButton.addActionListener(this);
 
         frame.setJMenuBar(menuBar); // Attach to the frame
     }
@@ -100,15 +83,7 @@ public class Menu implements ActionListener
     @Override
     public void actionPerformed(ActionEvent e) 
     {
-        if(e.getSource() == redoButton)
-        {
-
-        }
-        else if(e.getSource() == undoButton)
-        {
-
-        }
-        else if(e.getSource() == exit)
+        if(e.getSource() == exit)
         {
             frame.dispose();
             System.exit(0);

@@ -22,101 +22,133 @@ public class AddReview extends JPanel {
         this.mainFrame = mainFrame;
         this.customer = customer;
 
-        // Main panel
+        // Main panel with vertical layout to allow natural scroll
         StyledPanel mainPanel = new StyledPanel();
-        mainPanel.setLayout(new GridBagLayout());
-        mainPanel.setBackground(new Color(30, 30, 30));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // some padding
 
         // Title
         JLabel title = new JLabel("Add Review");
         Labels.styleELibraryLabel(title, "title");
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-        mainPanel.add(title, gbc);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(title);
+        mainPanel.add(Box.createVerticalStrut(20)); // spacing
 
-        gbc.gridy++;
-
-        // ComboBox for borrowed + owned books (no duplicates)
-        JComboBox<String> bookComboBox = new JComboBox<>();
+        // Book ComboBox
         HashSet<String> addedBooks = new HashSet<>();
+        JComboBox<Books> bookComboBox = new JComboBox<>();
 
+        // Add borrowed books to the combo box
         for (Books book : customer.getBorrowedBookList()) {
             if (addedBooks.add(book.getBookName())) {
-                bookComboBox.addItem(book.getBookName());
+                bookComboBox.addItem(book);
             }
         }
 
+        // Add owned books to the combo box
         for (Books book : customer.getOwnedBookList()) {
             if (addedBooks.add(book.getBookName())) {
-                bookComboBox.addItem(book.getBookName());
+                bookComboBox.addItem(book);
             }
         }
 
-        ComboBoxes.styleELibraryComboBox(bookComboBox);
-        mainPanel.add(bookComboBox, gbc);
+        // If no books are available to review, show a message
+        if (bookComboBox.getItemCount() == 0) {
+            JLabel noBooksLabel = new JLabel("You don't own or have not borrowed any books to review.");
+            Labels.styleELibraryLabel(noBooksLabel, "title");
+            noBooksLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            mainPanel.add(noBooksLabel);
+        } else {
+            ComboBoxes.styleELibraryComboBox(bookComboBox);
+            bookComboBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40)); // responsive width
+            mainPanel.add(bookComboBox);
+            mainPanel.add(Box.createVerticalStrut(20));
 
-        gbc.gridy++;
+            // Review Area
+            JTextArea reviewArea = new JTextArea(4, 30);
+            TextFields.styleELibraryTextArea(reviewArea);
+            reviewArea.setLineWrap(true);
+            reviewArea.setWrapStyleWord(true);
 
-        // Review TextArea
-        JTextArea reviewArea = new JTextArea(5, 20);
-        TextFields.styleELibraryTextArea(reviewArea);
-        reviewArea.setLineWrap(true);
-        reviewArea.setWrapStyleWord(true);
-        JScrollPane reviewScrollPane = new JScrollPane(reviewArea);
-        mainPanel.add(reviewScrollPane, gbc);
+            // Declare scroll pane before the listener
+            final JScrollPane reviewScrollPane = new JScrollPane(reviewArea);
+            reviewScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            reviewScrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
+            reviewScrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300)); // limit max height
+            reviewScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        gbc.gridy++;
+            // Auto-expand height based on content
+            reviewArea.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                private void resize() {
+                    reviewArea.setSize(reviewArea.getWidth(), Short.MAX_VALUE);
+                    int newHeight = reviewArea.getPreferredSize().height;
+                    reviewArea.setPreferredSize(new Dimension(reviewArea.getWidth(), newHeight));
+                    reviewArea.revalidate();
+                    reviewScrollPane.revalidate();
+                }
 
-        // Submit button
-        JButton submitBtn = new JButton("Submit Review");
-        Buttons.styleELibraryButton(submitBtn);
-        mainPanel.add(submitBtn, gbc);
+                @Override
+                public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                    resize();
+                }
 
-        // Action listener
-        submitBtn.addActionListener(e -> {
-            String selectedBookName = (String) bookComboBox.getSelectedItem();
-            String reviewText = reviewArea.getText().trim();
+                @Override
+                public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                    resize();
+                }
 
-            if (selectedBookName == null || selectedBookName.isEmpty()) {
-                CustomDialogUtil.showStyledMessage(null, "Please select a book.", "Error");
-                return;
-            }
+                @Override
+                public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                    resize();
+                }
+            });
 
-            if (reviewText.isEmpty()) {
-                CustomDialogUtil.showStyledMessage(null, "Please write a review before submitting.", "Error");
-                return;
-            }
+            mainPanel.add(reviewScrollPane);
+            mainPanel.add(Box.createVerticalStrut(20));
 
-            // Word count check (minimum 50 words)
-            int wordCount = reviewText.split("\\s+").length;
-            if (wordCount < 50) {
-                CustomDialogUtil.showStyledMessage(null, 
-                    "Your review is too short. Please write at least 50 words. Current word count: " + wordCount,
-                    "Review Too Short");
-                return;
-            }
+            // Submit Button
+            JButton submitBtn = new JButton("Submit Review");
+            Buttons.styleELibraryButton(submitBtn);
+            submitBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+            mainPanel.add(submitBtn);
 
-            Books selectedBook = Books.findBookByName(selectedBookName);
-            if (selectedBook != null) {
-                Books.addReview(selectedBook.getBookId(), customer.getId(), reviewText);
+            // Button Action
+            submitBtn.addActionListener(e -> {
+                Books selectedBook = (Books) bookComboBox.getSelectedItem();
+                String reviewText = reviewArea.getText().trim();
+
+                if (selectedBook == null) {
+                    CustomDialogUtil.showStyledMessage(null, "Please select a book.", "Error");
+                    return;
+                }
+
+                if (reviewText.length() < 20) {
+                    CustomDialogUtil.showStyledMessage(null,
+                            "Your review is too short. Please write at least 20 characters. Current length: " + reviewText.length(),
+                            "Review Too Short");
+                    return;
+                }
+
+                // Add the review for the selected book
+                addReview(selectedBook, reviewText);
                 CustomDialogUtil.showStyledMessage(null, "Review submitted successfully!", "Success");
-                reviewArea.setText("");
-            } else {
-                CustomDialogUtil.showStyledMessage(null, "Selected book not found.", "Error");
-            }
-        });
+                reviewArea.setText(""); // Clear the review area
+            });
+        }
 
-        // Add scroll pane for the entire panel
+        // Final outer scroll
         JScrollPane outerScrollPane = new JScrollPane(mainPanel);
-        outerScrollPane.getVerticalScrollBar().setUnitIncrement(16); // smooth scrolling
+        outerScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        outerScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        // Set layout and add
         setLayout(new BorderLayout());
         add(outerScrollPane, BorderLayout.CENTER);
+    }
+
+    // Method to add a review for the selected book
+    private void addReview(Books selectedBook, String reviewText) 
+    {
+        // Assuming the Books class has a method to add reviews
+        Books.addReview(selectedBook, customer.getId(), reviewText);
     }
 }

@@ -60,49 +60,44 @@ public class ReviewDAO {
             e.printStackTrace();
         }
     }
+    // READ: Get all reviews from the database
+public static void loadAllReviews() {
+    // Initialize the list for reviews and the map for book reviews
+    ArrayList<Reviews> reviewsList = new ArrayList<>();
+    Map<Integer, ArrayList<Reviews>> reviewsByBookId = new HashMap<>();
 
-        // READ: Get all reviews from the database
-    public static void loadAllReviews() 
-    {
-        ArrayList<Reviews> reviewsList = new ArrayList<>();
-        Map<Integer, ArrayList<Reviews>> ReviewsofBooks = new HashMap<>();
+    // Use try-with-resources to automatically close resources (connection, statement, result set)
+    String query = "SELECT * FROM Reviews"; // Define query once for reuse
+    try (Connection conn = DBConnection.getConnection(); // Get connection
+         PreparedStatement stmt = conn.prepareStatement(query); // Prepare the statement
+         ResultSet rs = stmt.executeQuery()) { // Execute the query
 
-        try (Connection conn = DBConnection.getConnection()) 
-        {
-            String sql = "SELECT * FROM Reviews";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) 
-            {
-                // Creating a new Review object for each record
-                Reviews review = new Reviews(
-                    rs.getInt("book_id"),
-                    rs.getInt("user_id"),
-                    rs.getString("review_text")
-                );
-                review.setId(rs.getInt("review_id")); // If the review object has a setter for ID
-                reviewsList.add(review); // Add the review to the list
-                
-                // Step 3: Group books by bookid
-                int bookid = review.getBookID();
+        // Process each result from the query
+        while (rs.next()) {
+            // Create a new Review object for each record retrieved
+            Reviews review = new Reviews(
+                rs.getInt("review_id"),
+                rs.getInt("book_id"),
+                rs.getInt("user_id"),
+                rs.getString("review_text")
+            );
 
-                // Check if the bookid already has a list in the map
-                if (!ReviewsofBooks.containsKey(bookid)) 
-                {
-                    ReviewsofBooks.put(bookid, new ArrayList<>());
-                }
-                
-                // Add the book to the publisher's list
-                ReviewsofBooks.get(bookid).add(review);
-            }
-        } 
-        catch (Exception e) 
-        {
-            e.printStackTrace();
+            // Add the review to the global list
+            reviewsList.add(review);
+
+            // Group reviews by book ID
+            int bookId = review.getBookID();
+            reviewsByBookId.computeIfAbsent(bookId, k -> new ArrayList<>()).add(review); // Add the review to the corresponding book list
         }
-        Reviews.setAllReviewsList(reviewsList);
-        Reviews.setReviewsofBooks(ReviewsofBooks);
+    } catch (SQLException e) {
+        System.err.println("Error while loading reviews from the database: " + e.getMessage()); // More informative error message
+        e.printStackTrace(); // Log exception if something goes wrong
     }
+
+    // Set the globally accessible review data in the Reviews class
+    Reviews.setAllReviewsList(reviewsList);
+    Reviews.setReviewsofBooks(reviewsByBookId);
+}
 
 
     public static int giveID() 

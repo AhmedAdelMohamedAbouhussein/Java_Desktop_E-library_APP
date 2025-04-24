@@ -95,3 +95,59 @@ VALUES (3);
 
 ALTER TABLE Books ADD cover_image VARBINARY(MAX);
 ALTER TABLE Books ADD book_text VARBINARY(MAX);
+
+
+-- Add 5 Admins
+INSERT INTO Users (id, name, email, password, role)
+VALUES 
+(4, 'Sara', 'Sara123@gmail.com', 'password123', 'admin'),
+(5, 'John', 'John456@gmail.com', 'password456', 'admin'),
+(6, 'Emily', 'Emily789@gmail.com', 'password789', 'admin'),
+(7, 'David', 'David101@gmail.com', 'password101', 'admin'),
+(8, 'Alex', 'Alex202@gmail.com', 'password202', 'admin');
+
+-- Add Admins Specific Entries
+INSERT INTO Admins (id)
+VALUES 
+(4),
+(5),
+(6),
+(7),
+(8);
+
+-- Add 5 Publishers
+INSERT INTO Users (id, name, email, password, role)
+VALUES 
+(9, 'Ali', 'Ali234@gmail.com', 'password234', 'publisher'),
+(10, 'Zahra', 'Zahra345@gmail.com', 'password345', 'publisher'),
+(11, 'Samir', 'Samir456@gmail.com', 'password456', 'publisher'),
+(12, 'Fatima', 'Fatima567@gmail.com', 'password567', 'publisher'),
+(13, 'Laila', 'Laila678@gmail.com', 'password678', 'publisher');
+
+-- Add Publishers Specific Entries
+INSERT INTO Publishers (id)
+VALUES 
+(9),
+(10),
+(11),
+(12),
+(13);
+
+-- Add 5 Customers
+INSERT INTO Users (id, name, email, password, role)
+VALUES 
+(14, 'Layla', 'Layla234@gmail.com', 'password432', 'customer'),
+(15, 'Rania', 'Rania345@gmail.com', 'password543', 'customer'),
+(16, 'Khalid', 'Khalid456@gmail.com', 'password654', 'customer'),
+(17, 'Nour', 'Nour567@gmail.com', 'password765', 'customer'),
+(18, 'Tariq', 'Tariq678@gmail.com', 'password876', 'customer');
+
+-- Add Customers Specific Entries
+INSERT INTO Customers (id)
+VALUES 
+(14),
+(15),
+(16),
+(17),
+(18);
+
