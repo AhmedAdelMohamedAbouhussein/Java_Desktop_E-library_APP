@@ -5,8 +5,8 @@
         "src"
     ],
     "java.project.outputPath": "bin",
-    "java.project.referencedLibraries": [
-        "lib\\mssql-jdbc-12.10.0.jre8.jar",
+    "java.project.referencedLibraries": 
+    [
         "c:\\Users\\aa591\\Documents\\AdvancedProgrammingProject\\lib\\mssql-jdbc-12.10.0.jre11.jar"
     ],
     "cSpell.enabled": true
