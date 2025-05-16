@@ -2,26 +2,44 @@ import tkinter as tk
 from tkinter import simpledialog, messagebox, scrolledtext, Menu
 import pyodbc
 import datetime
-import os
 import re
 import difflib
+import socket
 
 class AICustomerAssistant:
-    def _init_(self):
-        self.user_id = None
+    def __init__(self, user_id=None):
+        self.user_id = user_id
         self.user_name = "Customer"
         self.conn = self.create_connection()
         self.root = tk.Tk()
         self.root.withdraw()  # Hide until login
-        self.build_login()
+        if self.user_id is not None:
+            if not self.validate_user(self.user_id):
+                messagebox.showerror("Invalid ID", f"No customer found with ID {self.user_id}.")
+                return
+            self.fetch_user_name()
+            self.root.title("AI Customer Service Assistant")
+            self.root.geometry("800x600")
+            self.root.configure(bg="#6A0DAD")
+            self.root.protocol("WM_DELETE_WINDOW", self.exit_program)
+            self.build_gui()
+            self.root.deiconify()
+            self.log_interaction("System", f"Welcome {self.user_name}!")
+            self.respond(f"Hello {self.user_name}, how may I assist you today?")
+            self.root.mainloop()
+        else:
+            self.build_login()
+
 
     def create_connection(self):
         try:
             conn = pyodbc.connect(
-                'DRIVER={ODBC Driver 18 for SQL Server};'  # Update driver version here
-                'SERVER=localhost;'                      # Specify your server (e.g., localhost, IP address, or server name)
-                'DATABASE=E_Library_DB;'                 # Your database name
-                'Trusted_Connection=yes;'                # Use Windows authentication
+                "DRIVER={ODBC Driver 18 for SQL Server};"
+                "SERVER=localhost,1433;"  
+                "DATABASE=E_Library_DB;"
+                "Trusted_Connection=yes;"
+                "Encrypt=yes;"
+                "TrustServerCertificate=yes;"
             )
             return conn
         except Exception as e:
@@ -40,6 +58,8 @@ class AICustomerAssistant:
 
         self.fetch_user_name()
         self.root.title("AI Customer Service Assistant")
+        self.root.geometry("800x600")
+        self.root.configure(bg="#6A0DAD")
         self.root.protocol("WM_DELETE_WINDOW", self.exit_program)
         self.build_gui()
         self.root.deiconify()
@@ -50,7 +70,7 @@ class AICustomerAssistant:
     def fetch_user_name(self):
         try:
             cursor = self.conn.cursor()
-            cursor.execute("SELECT name FROM Customers WHERE customer_id = ?", self.user_id)
+            cursor.execute("SELECT name FROM Users WHERE id = ?", self.user_id)
             result = cursor.fetchone()
             if result:
                 self.user_name = result[0]
@@ -59,32 +79,66 @@ class AICustomerAssistant:
 
     def validate_user(self, user_id):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT customer_id FROM Customers WHERE customer_id = ?", user_id)
+        cursor.execute("SELECT id FROM Users WHERE id = ? AND role = 'customer'", user_id)
         return cursor.fetchone() is not None
 
     def build_gui(self):
-        self.text_area = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, width=80, height=25, state='disabled')
-        self.text_area.pack(padx=10, pady=10)
+        self.root.configure(bg="#6A0DAD")
 
-        entry_frame = tk.Frame(self.root)
+        self.text_area = scrolledtext.ScrolledText(
+            self.root,
+            wrap=tk.WORD,
+            width=80,
+            height=25,
+            state='disabled',
+            bg="#E6CCFF",
+            fg="black",
+            font=("Segoe UI", 11),
+            bd=2,
+            relief=tk.GROOVE
+        )
+        self.text_area.pack(padx=10, pady=(10, 5))
+
+        entry_frame = tk.Frame(self.root, bg="#6A0DAD")
         entry_frame.pack(pady=5, fill=tk.X)
 
-        self.entry = tk.Entry(entry_frame, width=70)
+        self.entry = tk.Entry(
+            entry_frame,
+            width=70,
+            font=("Segoe UI", 11),
+            bg="#F0E6FF",
+            fg="black",
+            relief=tk.FLAT,
+            insertbackground="black"
+        )
         self.entry.pack(side=tk.LEFT, padx=(10, 5), expand=True, fill=tk.X)
         self.entry.bind("<Return>", lambda event: self.process_input())
 
-        send_btn = tk.Button(entry_frame, text="Send", command=self.process_input)
+        send_btn = tk.Button(
+            entry_frame,
+            text="Send",
+            font=("Segoe UI", 10, "bold"),
+            bg="#9B59B6",
+            fg="white",
+            activebackground="#884EA0",
+            relief=tk.FLAT,
+            command=self.process_input,
+            padx=10,
+            pady=3
+        )
         send_btn.pack(side=tk.LEFT, padx=(0, 10))
 
         self.build_menu()
 
     def build_menu(self):
-        menubar = Menu(self.root)
-        help_menu = Menu(menubar, tearoff=0)
+        menubar = Menu(self.root, bg="#D1B3FF", fg="black", font=("Segoe UI", 10))
+        help_menu = Menu(menubar, tearoff=0, bg="#F5E6FF", fg="black")
+
         help_menu.add_command(label="Help", command=lambda: self.respond(self.help_text()))
         help_menu.add_command(label="About", command=lambda: self.respond("AI Assistant for E-Library v1.0"))
         help_menu.add_separator()
         help_menu.add_command(label="Exit", command=self.exit_program)
+
         menubar.add_cascade(label="Menu", menu=help_menu)
         self.root.config(menu=menubar)
 
@@ -92,10 +146,8 @@ class AICustomerAssistant:
         user_input = self.entry.get().strip()
         if not user_input:
             return
-
         self.log_interaction("You", user_input)
         self.entry.delete(0, tk.END)
-
         response = self.handle_input(user_input)
         self.respond(response)
 
@@ -217,27 +269,32 @@ class AICustomerAssistant:
     def get_sales_info(self):
         cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT B.book_name, B.sales_count FROM Books B WHERE B.sales_count > 0
+            SELECT B.book_name, COUNT(*) as sales_count FROM Orders O
+            JOIN Books B ON O.book_id = B.book_id
+            GROUP BY B.book_name
+            ORDER BY sales_count DESC
         """)
         rows = cursor.fetchall()
-        return "Books with sales:\n" + "\n".join(f"- {row[0]}: {row[1]} sales" for row in rows) if rows else "No sales recorded."
+        if not rows:
+            return "No sales data available."
+        return "Sales info:\n" + "\n".join(f"{row[0]}: {row[1]} sold" for row in rows)
 
     def get_publisher_info(self):
         cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT DISTINCT P.name, P.email FROM Publisher P
-            JOIN Books B ON B.publisher_id = P.publisher_id
+            SELECT DISTINCT P.name FROM Publishers P
+            JOIN Books B ON P.publisher_id = B.publisher_id
         """)
         rows = cursor.fetchall()
-        return "Publishers:\n" + "\n".join(f"- {r[0]} (Email: {r[1]})" for r in rows) if rows else "No publisher data."
+        return "Publishers:\n" + "\n".join(f"- {row[0]}" for row in rows) if rows else "No publisher info."
 
     def recommend_books(self):
         cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT TOP 5 book_name FROM Books ORDER BY sales_count DESC
+            SELECT TOP 5 book_name FROM Books ORDER BY NEWID()
         """)
         rows = cursor.fetchall()
-        return "Top recommendations:\n" + "\n".join(f"- {r[0]}" for r in rows) if rows else "No recommendations found."
+        return "Recommended books:\n" + "\n".join(f"- {row[0]}" for row in rows) if rows else "No recommendations available."
 
     def view_wishlist(self):
         cursor = self.conn.cursor()
@@ -250,28 +307,48 @@ class AICustomerAssistant:
         return "Your wishlist:\n" + "\n".join(f"- {row[0]}" for row in rows) if rows else "Your wishlist is empty."
 
     def add_to_wishlist(self):
-        book_id = simpledialog.askinteger("Add to Wishlist", "Enter Book ID to add:")
-        cursor = self.conn.cursor()
-        cursor.execute("INSERT INTO Wishlist (customer_id, book_id) VALUES (?, ?)", self.user_id, book_id)
-        self.conn.commit()
-        return "Book added to wishlist."
+        try:
+            book_id = simpledialog.askinteger("Wishlist", "Enter Book ID to add to wishlist:")
+            cursor = self.conn.cursor()
+            cursor.execute("INSERT INTO Wishlist (customer_id, book_id) VALUES (?, ?)", self.user_id, book_id)
+            self.conn.commit()
+            return "Book added to wishlist."
+        except Exception as e:
+            return f"Error: {str(e)}"
 
     def help_text(self):
         return (
-            "You can say things like:\n"
+            "You can ask me things like:\n"
             "- What have I borrowed?\n"
-            "- Show me available books\n"
-            "- I want to leave a review\n"
-            "- Show me the publishers\n"
-            "- Recommend me a book\n"
-            "- What books did I buy?\n"
-            "- Add a book to my wishlist\n"
-            "- Help\n"
+            "- Show owned books\n"
+            "- List all books\n"
+            "- Submit/edit/delete a review\n"
+            "- Show sales information\n"
+            "- Publisher info\n"
+            "- Recommend a book\n"
+            "- View/add to wishlist\n"
+            "- Type 'help' to see this message again."
         )
 
     def exit_program(self):
-        self.conn.close()
-        self.root.destroy()
+        if messagebox.askokcancel("Exit", "Do you want to exit the program?"):
+            self.conn.close()
+            self.root.destroy()
+
+def start_server(host='localhost', port=65432):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((host, port))
+        s.listen()
+        print(f"Server listening on {host}:{port}")
+        conn, addr = s.accept()
+        with conn:
+            print(f"Connected by {addr}")
+            data = conn.recv(1024)
+            if data:
+                number = data.decode('utf-8')
+                print(f"Received number from client: {number}")
+                conn.sendall(b"Number received")
+                AICustomerAssistant(number)
 
 if __name__ == "__main__":
-    AICustomerAssistant()
+    start_server()

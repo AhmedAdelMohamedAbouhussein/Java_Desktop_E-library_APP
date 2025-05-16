@@ -61,11 +61,12 @@ public class CustomerPage extends JPanel {
         ClickableLabel viewBorrowedBooksLabel = new ClickableLabel("View Borrowed Books");
         ClickableLabel returnBorrowedBooksLabel = new ClickableLabel("Return Borrowed Books");
         ClickableLabel updateProfileLabel = new ClickableLabel("Update Profile");
+        ClickableLabel AICustomerSupport = new ClickableLabel("AI Customer Support");
 
         // Set preferred sizes for all labels
         ClickableLabel[] labels = {
             browseBooksLabel, viewOrdersLabel, viewReviewsLabel, addReviewLabel,
-            viewOwnedBooksLabel, viewBorrowedBooksLabel, returnBorrowedBooksLabel, updateProfileLabel
+            viewOwnedBooksLabel, viewBorrowedBooksLabel, returnBorrowedBooksLabel, updateProfileLabel, AICustomerSupport
         };
 
         // Add labels to the sidebar
@@ -165,6 +166,8 @@ public class CustomerPage extends JPanel {
                         System.out.println("Update Profile clicked");
                         break;
 
+                    case "AI Customer Support" :
+                        new PythonAICustomerSupport(customer.getId());
                     default:
                         break;
                 }
