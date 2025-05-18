@@ -168,7 +168,6 @@ class AICustomerAssistant:
             "own": self.get_owned_books,
             "available": self.get_all_books,
             "review": self.leave_review,
-            "sales": self.get_sales_info,
             "publisher": self.get_publisher_info,
             "recommend": self.recommend_books,
             "wishlist": self.view_wishlist,
@@ -187,14 +186,14 @@ class AICustomerAssistant:
 
     def fuzzy_response(self, command):
         possible_intents = [
-            "what have i borrowed", "show owned books", "list books", "submit review", "show sales",
+            "what have i borrowed", "show owned books", "list books", "submit review",
             "publisher info", "recommend a book", "wishlist", "add book to wishlist",
             "delete my review", "edit my review"
         ]
         best_match = difflib.get_close_matches(command, possible_intents, n=1, cutoff=0.5)
         if best_match:
             return self.handle_input(best_match[0])
-        return "I'm sorry, I couldn't understand that. Try using keywords like 'borrowed', 'review', 'sales', etc."
+        return "I'm sorry, I couldn't understand that. Try using keywords like 'borrowed', 'review', etc."
 
     def get_borrowed_books(self):
         cursor = self.conn.cursor()
@@ -224,15 +223,23 @@ class AICustomerAssistant:
 
     def leave_review(self):
         try:
-            book_id = simpledialog.askinteger("Review", "Enter Book ID:")
-            if book_id is None:
+            book_name = simpledialog.askstring("Review", "Enter Book Name:")
+            if not book_name:
                 return "Cancelled."
+
+            # Get book_id from book_name
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT book_id FROM Books WHERE book_name = ?", book_name)
+            book = cursor.fetchone()
+            if not book:
+                return "Book not found."
+
+            book_id = book[0]
 
             review = simpledialog.askstring("Review", "Write your review:")
             if not review:
                 return "Cancelled."
 
-            cursor = self.conn.cursor()
             cursor.execute("SELECT MAX(review_id) FROM Reviews")
             max_id = cursor.fetchone()[0] or 0
             new_id = max_id + 1
@@ -266,24 +273,13 @@ class AICustomerAssistant:
         except:
             return "Error deleting review."
 
-    def get_sales_info(self):
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT B.book_name, COUNT(*) as sales_count FROM Orders O
-            JOIN Books B ON O.book_id = B.book_id
-            GROUP BY B.book_name
-            ORDER BY sales_count DESC
-        """)
-        rows = cursor.fetchall()
-        if not rows:
-            return "No sales data available."
-        return "Sales info:\n" + "\n".join(f"{row[0]}: {row[1]} sold" for row in rows)
-
     def get_publisher_info(self):
         cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT DISTINCT P.name FROM Publishers P
-            JOIN Books B ON P.publisher_id = B.publisher_id
+            SELECT DISTINCT U.name 
+            FROM Publishers P
+            JOIN Users U ON P.id = U.id
+            JOIN Books B ON P.id = B.publisher_id
         """)
         rows = cursor.fetchall()
         return "Publishers:\n" + "\n".join(f"- {row[0]}" for row in rows) if rows else "No publisher info."
@@ -297,24 +293,60 @@ class AICustomerAssistant:
         return "Recommended books:\n" + "\n".join(f"- {row[0]}" for row in rows) if rows else "No recommendations available."
 
     def view_wishlist(self):
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT B.book_name FROM Wishlist W
-            JOIN Books B ON W.book_id = B.book_id
-            WHERE W.customer_id = ?
-        """, self.user_id)
-        rows = cursor.fetchall()
-        return "Your wishlist:\n" + "\n".join(f"- {row[0]}" for row in rows) if rows else "Your wishlist is empty."
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                SELECT B.book_name 
+                FROM Wishlist W
+                JOIN Books B ON W.book_id = B.book_id
+                WHERE W.customer_id = ?
+            """, (self.user_id,))
+            wishlist = cursor.fetchall()
+
+            if not wishlist:
+                return "Your wishlist is empty."
+
+            wishlist_str = "\n".join([book[0] for book in wishlist])
+            return f"Your wishlist:\n{wishlist_str}"
+
+        except Exception as e:
+            return f"Error loading wishlist: {str(e)}"
+
 
     def add_to_wishlist(self):
         try:
-            book_id = simpledialog.askinteger("Wishlist", "Enter Book ID to add to wishlist:")
+            book_name = simpledialog.askstring("Wishlist", "Enter Book Name to add to wishlist:")
+            if not book_name:
+                print("No book name entered.")
+                return "Cancelled."
+
             cursor = self.conn.cursor()
-            cursor.execute("INSERT INTO Wishlist (customer_id, book_id) VALUES (?, ?)", self.user_id, book_id)
+
+            # Step 1: Check if book exists
+            cursor.execute("SELECT book_id FROM Books WHERE book_name = ?", (book_name,))
+            book = cursor.fetchone()
+            if not book:
+                print("Book not found in database.")
+                return "Book not found."
+            book_id = book[0]
+            print(f"Book found: {book_name} -> ID: {book_id}")
+
+            # Step 2: Check if already in wishlist
+            cursor.execute("SELECT 1 FROM Wishlist WHERE customer_id = ? AND book_id = ?", (self.user_id, book_id))
+            if cursor.fetchone():
+                print("Book already in wishlist.")
+                return "Book is already in your wishlist."
+
+            # Step 3: Insert into wishlist
+            cursor.execute("INSERT INTO Wishlist (customer_id, book_id) VALUES (?, ?)", (self.user_id, book_id))
             self.conn.commit()
+            print("Book added to wishlist.")
             return "Book added to wishlist."
+
         except Exception as e:
+            print("Error during add_to_wishlist:", str(e))
             return f"Error: {str(e)}"
+
 
     def help_text(self):
         return (

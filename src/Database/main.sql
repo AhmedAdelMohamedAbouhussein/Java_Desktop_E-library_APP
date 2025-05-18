@@ -69,6 +69,16 @@ CREATE TABLE Reviews
     FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE NO ACTION
 );
 
+CREATE TABLE Wishlist 
+(
+    customer_id INT NOT NULL,
+    book_id INT NOT NULL,
+    PRIMARY KEY (customer_id, book_id),
+    FOREIGN KEY (customer_id) REFERENCES Customers(id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+);
+
+
 -- Add Admin
 INSERT INTO Users (id, name, email, password, role)
 VALUES (1, 'Ahmed', 'Aa5913372@gmail.com', 'password', 'admin');
