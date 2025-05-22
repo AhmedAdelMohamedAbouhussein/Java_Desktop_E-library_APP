@@ -29,7 +29,7 @@ public class Load_Everything
                 for (int i = 0; i < BorrowedBooks.getcustomerBorrowedBooks().get(c.getId()).size(); i++) {
                     Integer bookId = BorrowedBooks.getcustomerBorrowedBooks().get(c.getId()).get(i);
                     if (Books.getAllBooksList().containsKey(bookId)) {
-                        c.getBorrowedBookList().add(Books.getAllBooksList().get(bookId)); // Using the correct ID to fetch the book
+                        c.getBorrowedBookList().add(Books.getAllBooksList().get(bookId)); 
                     }
                 }
             }
@@ -41,7 +41,7 @@ public class Load_Everything
                 for (int i = 0; i < OwnedBooks.getcustomerOwnedBooks().get(c.getId()).size(); i++) {
                     Integer bookId = OwnedBooks.getcustomerOwnedBooks().get(c.getId()).get(i);
                     if (Books.getAllBooksList().containsKey(bookId)) {
-                        c.getOwnedBookList().add(Books.getAllBooksList().get(bookId)); // Correctly adding to the owned books list
+                        c.getOwnedBookList().add(Books.getAllBooksList().get(bookId));
                     }
                 }
             }

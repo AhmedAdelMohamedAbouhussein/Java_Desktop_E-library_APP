@@ -87,7 +87,7 @@ public class UsersDAO
         return null;
     }
     
-    //for signin
+    //for sign up
     public static Boolean getUserByEmail(String email) 
     {
         try (Connection conn = DBConnection.getConnection()) 

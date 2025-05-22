@@ -148,6 +148,7 @@ public class Customers extends Users
     {
         return potentialOwnedBooks;
     }
+    
     public void setpotentialOwnedBooks(ArrayList<Books> potentialOwnedBooks)
     {
         this.potentialOwnedBooks = potentialOwnedBooks;
@@ -158,6 +159,7 @@ public class Customers extends Users
     {
         return potentialBorrowedBooks;
     }
+
     public void setpotentialBorroedbooks(ArrayList<Books> potentialBorrowedBooks)
     {
         this.potentialBorrowedBooks = potentialBorrowedBooks;

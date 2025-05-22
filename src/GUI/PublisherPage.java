@@ -148,7 +148,7 @@ public class PublisherPage extends JPanel {
                 }
             }
         };
-
+ 
         for (ClickableLabel label : labels) {
             label.addActionListener(labelClickListener);
         }

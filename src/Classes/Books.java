@@ -22,7 +22,6 @@ public class Books
 
     private static HashMap<Integer, Books> AllbooksList = new HashMap<>();
     private static HashMap<Integer, ArrayList<Books>> booksByPublisher = new HashMap<>();
-
     
     public Books(int publisherID, String bookName, double price , String category, File coverImageFile, File bookTextFile)
     {

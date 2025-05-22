@@ -367,7 +367,7 @@ class AICustomerAssistant:
             self.conn.close()
             self.root.destroy()
 
-def start_server(host='localhost', port=65432):
+def start_server(host='localhost', port=65432): # wait fpr request from java fille
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
         s.listen()
@@ -379,8 +379,8 @@ def start_server(host='localhost', port=65432):
             if data:
                 number = data.decode('utf-8')
                 print(f"Received number from client: {number}")
-                conn.sendall(b"Number received")
-                AICustomerAssistant(number)
+                conn.sendall(b"Number received") #response
+                AICustomerAssistant(number) # call construct
 
 if __name__ == "__main__":
     start_server()
